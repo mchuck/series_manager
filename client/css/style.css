@@ -1,0 +1,27 @@
+.elm-container {
+    padding-top: 70px;
+}
+
+.finished-text{
+    position : relative;
+    left : 5px;
+    margin-top : 28px;
+}
+
+.episode-btn{
+    margin-bottom: 10px;
+}
+
+.top-margin-20{
+    margin-top: 20px !important;
+}
+
+.clickable{
+    cursor: pointer;
+}
+
+h1, h2, h3, h4, h5, h6, p, label, li, a{
+    -webkit-user-select: none;
+    cursor : default;
+}
+    

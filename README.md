@@ -1,0 +1,1 @@
+Series Manager built using F# / suave / elm / electron 
