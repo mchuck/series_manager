@@ -395,3 +395,4 @@ paket-files/
 .paket
 client/node_modules/
 client/elm-stuff
+client/elm.js
