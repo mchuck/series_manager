@@ -62,6 +62,18 @@ view model =
               ]
         , div [ class "col-xs-12" ]
               (List.map (\s -> seasonView s model) (seasons model))
+        , div [ class "col-xs-12 top-margin-20" ]
+              [ div [ class "col-xs-12 top-margin-20" ]
+                    [ div [ class "col-xs-6" ]
+                          [ a [ class "col-xs-12 btn btn-info", href ("#series/" ++ (toString model.id) ++ "/newEpisode") ]
+                                [ text "Add new episode" ]
+                          ]
+                    , div [ class "col-xs-6" ]
+                        [ a [ class "col-xs-12 btn btn-danger", href ("#series/" ++ (toString model.id) ++ "/delete") ]
+                              [ text "Delete this series" ]
+                        ]
+                    ]
+              ]
         ]
 
 seasonView : Int -> Series -> Html Msg

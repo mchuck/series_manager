@@ -1,7 +1,7 @@
 module Views.EpisodeView exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, href)
 
 import Views.Components exposing (breadcrumbsComponent, finishedClass, finishedText)
 import Models exposing (Series, Episode, getEpisode)
@@ -40,4 +40,17 @@ view series episode =
               [ p []
                     [ text episode.description ]
               ]
+        , div [ class "col-xs-12 top-margin-20" ]
+              [ div [ class "col-xs-6" ]
+                    [ a [ class "col-xs-12 btn btn-warning" ]
+                          [ text "Edit episode" ]
+                    ]
+              , div [ class "col-xs-6" ]
+                    [ a
+                      [ class "col-xs-12 btn btn-danger"
+                      , href ("#series/" ++ (toString series.id) ++ "/episode/" ++ (toString episode.id) ++ "/delete")
+                      ]
+                      [ text "Delete episode" ]
+                    ]
+              ]                                
         ]

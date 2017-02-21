@@ -14,10 +14,14 @@ type Route
     | NewSeriesRoute
     | NotFoundRoute
     | EpisodeRoute SeriesId EpisodeId
+    | NewEpisodeRoute SeriesId
+    | DeleteEpisodeRoute SeriesId EpisodeId
+    | DeleteSeriesRoute SeriesId
       
 type alias Model =
     { series : WebData (SeriesCollection)
     , newSeries : Series
+    , newEpisode : Episode
     , route : Route
     } 
 
@@ -38,6 +42,13 @@ initialModel route =
           , time = ""
           , episodes = []
           }
+    , newEpisode =
+        { id = -1
+        , description = ""
+        , isFinished = False
+        , season = -1
+        , number = -1
+        }                   
     , route = route
     }
         

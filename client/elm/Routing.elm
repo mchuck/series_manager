@@ -15,6 +15,9 @@ matchers =
         , map SeriesCollectionRoute (s "series")
         , map NewSeriesRoute (s "newSeries")
         , map EpisodeRoute (s "series" </> int </> s "episode" </> int)
+        , map NewEpisodeRoute (s "series" </> int </> s "newEpisode")
+        , map DeleteEpisodeRoute (s "series" </> int </> s "episode" </> int </> s "delete")
+        , map DeleteSeriesRoute (s "series" </> int </> s "delete")
         ]
 
 parseLocation : Location -> Route

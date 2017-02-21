@@ -170,11 +170,23 @@ module Db =
                                          | None -> episodesDb.Create()
 
                     newEpisode.Description <- e.Description
+                    newEpisode.SeriesId <- seriesId
                     newEpisode.Finished <- if e.IsFinished then int64(1) else int64(0)
                     newEpisode.Number <- e.Number
                     newEpisode.Season <- e.Season        
                     )
-        
+
+        let episodesIds =
+            episodes
+            |> Seq.map (fun e -> e.Id)
+
+        let dbEpisodes =
+            episodesBySeriesId seriesId
+            |> Seq.toList
+            |> Seq.filter (fun dbE -> not (Seq.contains dbE.Id episodesIds))
+            |> Seq.iter (fun dbE ->
+                         dbE.Delete())
+           
         ctx.SubmitUpdates()
 
     let updateSeriesById seriesId seriesToBeUpdated =

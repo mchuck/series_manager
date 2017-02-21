@@ -5,21 +5,24 @@ import Html.Attributes exposing (attribute, class, id, href, src, alt)
 import WebData exposing (WebData(..))
 
 import Models exposing (Model, SeriesCollection, Series, Route(..), getSingleSeries, getEpisode)
-import Messages exposing (Msg)
+import Messages exposing (Msg(..))
 
 import Views.MenuView
 import Views.SeriesSingleView
 import Views.SeriesListView
 import Views.NewSeriesView
 import Views.EpisodeView
+import Views.NewEpisodeView
+import Views.AreYouSure
 
 -- VIEW
         
 view : Model -> Html Msg
 view model =
     div [ class "elm-container" ]
-        [ Views.MenuView.view model
-        , page model
+        --[ Views.MenuView.view model
+        --, page model
+        [ page model
         ]
 
         
@@ -60,10 +63,34 @@ page model =
                     Nothing ->
                         notFoundView
 
+        NewEpisodeRoute seriesId ->
+            let
+                singleSeries = 
+                    getSingleSeries model.series seriesId
+            in
+                case singleSeries of
+                    Just s ->
+                        Views.NewEpisodeView.view model s
+                    Nothing ->
+                        notFoundView
+                            
         NotFoundRoute ->
             notFoundView
 
+        DeleteEpisodeRoute seriesId episodeId ->
+            let
+                singleSeries = 
+                    getSingleSeries model.series seriesId
+            in
+                case singleSeries of
+                    Just s ->
+                        Views.AreYouSure.view (DeleteEpisode s episodeId) (ChangeLocation (EpisodeRoute seriesId episodeId))
+                    Nothing ->
+                        notFoundView
 
+        DeleteSeriesRoute seriesId ->
+            Views.AreYouSure.view (DeleteSeries seriesId) (ChangeLocation (SeriesRoute seriesId))
+                       
 notFoundView : Html Msg
 notFoundView =
     div []

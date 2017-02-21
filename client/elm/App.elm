@@ -3,6 +3,7 @@ module App exposing (..)
 
 import WebData exposing (WebData(..))
 import WebData.Http
+import Http exposing (send, emptyBody)
 import Navigation exposing (Location)
 import String exposing (toInt)
 
@@ -30,6 +31,7 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     let
         newS = model.newSeries
+        newE = model.newEpisode
     in
         case msg of
             GetSeries ->
@@ -54,6 +56,9 @@ update msg model =
                 in
                     ({ model | route = newRoute }, Cmd.none)
 
+            ChangeLocation newRoute ->
+                ({ model | route = newRoute }, Cmd.none)
+                        
             NewSeriesNameChange newName ->
                 let
                     updatedSeries = { newS | name = newName }
@@ -76,7 +81,7 @@ update msg model =
                 in
                     ({ model | newSeries = updatedSeries }, Cmd.none)
                                           
-            NewSeriesFiniChange newIsFinished ->
+            NewSeriesFiniChange _ ->
                 let
                     updatedSeries = { newS | isFinished = not newS.isFinished }
                 in
@@ -110,7 +115,76 @@ update msg model =
 
             AddedSeries series ->
                 update GetSeries { model | route = SeriesCollectionRoute }
+
+            AddedEpisode series ->
+                let
+                    newRoute =
+                        case series of
+                            Success s->
+                                SeriesRoute s.id
+                            _ ->
+                                SeriesCollectionRoute 
+                in
+                    update GetSeries { model | route = newRoute }
+
+            NewEpisodeDescChange newDescription ->
+                let
+                    updatedEpisode = { newE | description = newDescription }
+                in
+                    ({model | newEpisode = updatedEpisode}, Cmd.none)
+
+            NewEpisodeFiniChange _ ->
+                let
+                    updatedEpisode = { newE | isFinished = not newE.isFinished }
+                in
+                    ({model | newEpisode = updatedEpisode}, Cmd.none)       
                     
+            NewEpisodeNumbChange newNumber ->
+                let
+                    numberInt = toInt newNumber
+                    updatedEpisode = case numberInt of
+                                        Ok n ->
+                                            { newE | number = n }
+                                        _ ->
+                                            newE    
+                in
+                    ({model | newEpisode = updatedEpisode}, Cmd.none)
+
+            NewEpisodeSeasChange newSeason ->
+                let
+                    seasonInt = toInt newSeason
+                    updatedEpisode = case seasonInt of
+                                        Ok s ->
+                                            { newE | season = s }
+                                        _ ->
+                                            newE    
+                in
+                    ({model | newEpisode = updatedEpisode}, Cmd.none)
+
+            SubmitNewEpisode series ->
+                let
+                    newSeries = { series | episodes = newE :: series.episodes }
+                in
+                    (model, updateSeries newSeries)
+
+            DeleteSeries seriesId ->
+                (model, deleteSeries seriesId SeriesCollectionRoute)
+
+            DeleteEpisode series episodeId ->
+                let
+                    newEpisodes =
+                        series.episodes
+                            |> List.filter (\e -> e.id /= episodeId)
+                    newSeries = { series | episodes = newEpisodes }
+                in
+                    (model, updateSeries newSeries)
+
+            OnDelete (Ok callbackRoute) ->
+                update GetSeries { model | route = callbackRoute }
+
+            OnDelete (Err _) ->
+               ({ model | route = SeriesCollectionRoute }, Cmd.none )
+
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
@@ -136,4 +210,30 @@ submitSeries newSeries =
     in
         WebData.Http.post url AddedSeries singleSeriesDecoder (singleSeriesEncoder newSeries)
 
+updateSeries : Series -> Cmd Msg
+updateSeries newSeries =
+    let
+        url =
+            "http://localhost:8080/series"
+    in
+        WebData.Http.put url AddedEpisode singleSeriesDecoder (singleSeriesEncoder newSeries)
+         
+deleteSeries : Int -> Route -> Cmd Msg
+deleteSeries seriesId callbackRoute =
+    let
+        url =
+            "http://localhost:8080/series/" ++ (toString seriesId)
+        request =
+            Http.request
+                { method = "delete"
+                , headers = []
+                , url = url
+                , body = Http.emptyBody
+                , expect = Http.expectStringResponse (\r -> Ok callbackRoute)
+                , timeout = Nothing
+                , withCredentials = False
+                }
+    in
+        Http.send OnDelete request
+        
 
