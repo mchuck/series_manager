@@ -1,7 +1,7 @@
 module Views.Components exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (href, class, attribute, id, for, required)
+import Html.Attributes exposing (value, href, class, attribute, id, for, required, checked, selected)
 import Html.Events exposing (onInput, onClick)
 import List
 
@@ -63,7 +63,16 @@ type alias FormGroup =
     , control : FormControl
     , options : List String
     , action : String -> Msg
+    , value : Maybe String
     }
+
+isNothing : Maybe a -> Bool
+isNothing m =
+    case m of
+        Nothing ->
+            True
+        _ ->
+            False
 
 formGroupComponent : FormGroup -> Html Msg
 formGroupComponent fg =
@@ -74,28 +83,56 @@ formGroupComponent fg =
               _ ->
                   label [ class "control-label col-xs-2", for fg.id ]
                       [ text fg.label ]
-        , div [ class "col-xs-10", class (case fg.control of
-                                              CheckBox ->
-                                                  "col-sm-offset-2"
-                                              _ ->
-                                                  ""
-                                         ) ]
+        , div [ class "col-xs-10"
+              , class (case fg.control of
+                           CheckBox ->
+                               "col-sm-offset-2"
+                           _ ->
+                               ""
+                      )
+              ]
               [ case fg.control of
                     Input ->
-                        input [ attribute "type" fg.controlType, class "form-control", id fg.id, required True, onInput fg.action ]
-                            []
+                        input [ value (Maybe.withDefault "ad" fg.value)
+                              , attribute "type" fg.controlType
+                              , class "form-control"
+                              , id fg.id
+                              , required True
+                              , onInput fg.action ]
+                        [ ]
                     TextArea ->
-                        textarea [ class "form-control", id fg.id, required True, onInput fg.action  ] []
+                        textarea [ value (Maybe.withDefault "" fg.value)
+                                 , class "form-control"
+                                 , id fg.id
+                                 , required True
+                                 , onInput fg.action  ]
+                        []
                     CheckBox ->
                         div [ class "checkbox" ]
                             [ label [ for fg.id ]
-                                  [ input [ attribute "type" "checkbox", required True, onClick (fg.action "")  ] []
+                                  [ input [ checked (not (isNothing fg.value))                                                         
+                                          , attribute "type" "checkbox"
+                                          , required True
+                                          , onClick (fg.action "")
+                                          ]
+                                        []
                                   , text fg.label
                                   ]
                             ]
                     Option ->
-                        select [ class "form-control", id fg.id, required True, onInput fg.action  ]
-                            (List.map (\i -> option [] [ text i ] ) fg.options)
+                        select [ class "form-control"
+                               , id fg.id
+                               , required True
+                               , onInput fg.action
+                               ]
+                            (List.map (\i -> option
+                                           [ selected (case fg.value of
+                                                           Just s ->
+                                                               s == i
+                                                           Nothing ->
+                                                               False
+                                                      )]
+                                           [ text i ] ) fg.options)
               ]
         ]
             

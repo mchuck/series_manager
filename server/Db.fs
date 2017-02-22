@@ -79,6 +79,13 @@ module Db =
             select (episode)
         } |> Seq.first
 
+    let private episodeById episodeId =
+        query {
+            for episode in episodesDb do
+            where (episode.Id = episodeId)
+            select (episode)
+        } |> Seq.first
+
     let private seriesById id =
         query {
             for series in seriesDb do
@@ -161,20 +168,7 @@ module Db =
     let private updateStation (station : Station) =
         stationIdByName station.Name
 
-    let private updateEpisodes seriesId episodes =
-        episodes
-        |> Seq.iter(fun e ->
-                    let episode = episodeByData seriesId e
-                    let newEpisode = match episode with
-                                         | Some e -> e
-                                         | None -> episodesDb.Create()
-
-                    newEpisode.Description <- e.Description
-                    newEpisode.SeriesId <- seriesId
-                    newEpisode.Finished <- if e.IsFinished then int64(1) else int64(0)
-                    newEpisode.Number <- e.Number
-                    newEpisode.Season <- e.Season        
-                    )
+    let private updateEpisodes seriesId (episodes: seq<Episode>) =
 
         let episodesIds =
             episodes
@@ -183,23 +177,46 @@ module Db =
         let dbEpisodes =
             episodesBySeriesId seriesId
             |> Seq.toList
-            |> Seq.filter (fun dbE -> not (Seq.contains dbE.Id episodesIds))
-            |> Seq.iter (fun dbE ->
-                         dbE.Delete())
-           
+
+        dbEpisodes
+        |> Seq.filter (fun dbE -> not (Seq.contains dbE.Id episodesIds))
+        |> Seq.iter (fun dbE ->
+                     dbE.Delete())
+        
+        episodes
+        |> Seq.iter(fun e ->
+                    let episode = episodeByData seriesId e
+                    let newEpisode = match episode with
+                                        | Some e -> e
+                                        | None -> match episodeById e.Id with
+                                                     | Some e -> e
+                                                     | None -> episodesDb.Create()
+               
+                    newEpisode.Description <- e.Description
+                    newEpisode.SeriesId <- seriesId
+                    newEpisode.Finished <- if e.IsFinished then int64(1) else int64(0)
+                    newEpisode.Number <- e.Number
+                    newEpisode.Season <- e.Season        
+                    )
+     
         ctx.SubmitUpdates()
 
     let updateSeriesById seriesId seriesToBeUpdated =
         let series =
             seriesById seriesId
 
-        match series with
+        let updatedSeries =
+            match series with
             | None -> None
             | Some s ->
                 let newStationId =
                     updateStation seriesToBeUpdated.Station
                 updateEpisodes seriesId seriesToBeUpdated.Episodes |> ignore
-                Some (feedSeries (setSeriesModel s seriesToBeUpdated newStationId))           
+                Some (feedSeries (setSeriesModel s seriesToBeUpdated newStationId))
+
+        ctx.SubmitUpdates()
+
+        updatedSeries
 
     let updateSeries seriesToBeUpdated =
         updateSeriesById seriesToBeUpdated.Id seriesToBeUpdated

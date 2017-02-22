@@ -4,12 +4,12 @@ import Html exposing (..)
 import Html.Attributes exposing (class, attribute)
 import Html.Events exposing (onClick)
 
-import Models exposing (Model, daysOfWeek)
+import Models exposing (Model, Series, daysOfWeek, dayFromInt)
 import Messages exposing (Msg(..))
 import Views.Components exposing (Breadcrumb, FormGroup, FormControl(..), breadcrumbsComponent, formGroupComponent)
 
-view : Model -> Html Msg
-view model =
+view : Model -> Int -> Html Msg
+view model seriesId =
     div [ ]
         [ (breadcrumbsComponent
                [ { active = False
@@ -32,6 +32,7 @@ view model =
                                  , control = Input
                                  , options = []
                                  , action = NewSeriesNameChange
+                                 , value = Just model.newSeries.name
                                  }
             , formGroupComponent { id = "description"
                                  , label = "Description"
@@ -39,6 +40,7 @@ view model =
                                  , control = TextArea
                                  , options = []
                                  , action = NewSeriesDescChange
+                                 , value = Just model.newSeries.description
                                  }
             , formGroupComponent { id = "station"
                                  , label = "Station Name"
@@ -46,6 +48,7 @@ view model =
                                  , control = Input
                                  , options = []
                                  , action = NewSeriesStatChange
+                                 , value = Just model.newSeries.station.name
                                  }
             , formGroupComponent { id = "isFinished"
                                  , label = "Finished"
@@ -53,6 +56,12 @@ view model =
                                  , control = CheckBox
                                  , options = []
                                  , action = NewSeriesFiniChange
+                                 , value =
+                                     case model.newSeries.isFinished of
+                                         True ->
+                                             Just "checked"
+                                         _ ->
+                                             Nothing
                                  }
             , formGroupComponent { id = "duration"
                                  , label = "Duration (in minutes)"
@@ -60,6 +69,7 @@ view model =
                                  , control = Input
                                  , options = []
                                  , action = NewSeriesDuraChange
+                                 , value = Just (toString model.newSeries.duration)
                                  }
             , formGroupComponent { id = "day"
                                  , label = "Day"
@@ -67,6 +77,7 @@ view model =
                                  , control = Option
                                  , options = daysOfWeek
                                  , action = NewSeriesDaysChange
+                                 , value = Just (dayFromInt model.newSeries.day)
                                  }
             , formGroupComponent { id = "time"
                                  , label = "Time"
@@ -74,11 +85,12 @@ view model =
                                  , control = Input
                                  , options = []
                                  , action = NewSeriesTimeChange
+                                 , value = Just model.newSeries.time
                                  }
             , div [ class "form-group" ]
                   [ div [ class "col-xs-12" ]
-                        [ button [ attribute "type" "submit", class "btn btn-info col-xs-12", onClick SubmitNewSeries ]
-                              [ text "Add series" ]
+                        [ button [ attribute "type" "submit", class "btn btn-info col-xs-12", onClick (SubmitSeries seriesId) ]
+                              [ text "Save" ]
                         ]
                   ]
             ]

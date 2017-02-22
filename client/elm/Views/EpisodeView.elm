@@ -2,11 +2,11 @@ module Views.EpisodeView exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, href)
+import Html.Events exposing (onClick)
 
 import Views.Components exposing (breadcrumbsComponent, finishedClass, finishedText)
 import Models exposing (Series, Episode, getEpisode)
-import Messages exposing (Msg)
-
+import Messages exposing (Msg(..))
 
 
 view : Series -> Episode -> Html Msg
@@ -42,8 +42,11 @@ view series episode =
               ]
         , div [ class "col-xs-12 top-margin-20" ]
               [ div [ class "col-xs-6" ]
-                    [ a [ class "col-xs-12 btn btn-warning" ]
-                          [ text "Edit episode" ]
+                    [ span
+                      [ class "col-xs-12 btn btn-warning"
+                      , onClick (EditEpisode series episode)
+                      ]
+                      [ text "Edit episode" ]
                     ]
               , div [ class "col-xs-6" ]
                     [ a
@@ -52,5 +55,7 @@ view series episode =
                       ]
                       [ text "Delete episode" ]
                     ]
-              ]                                
+              ]
         ]
+                                     
+        

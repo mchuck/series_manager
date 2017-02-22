@@ -4,7 +4,7 @@ import Http exposing (Error)
 import Navigation exposing (Location)
 import WebData exposing (WebData)
 
-import Models exposing (SeriesCollection, Series, Route)
+import Models exposing (SeriesCollection, Series, Episode, Route)
 
 type Msg
     = GetSeries
@@ -12,6 +12,7 @@ type Msg
     | OnLocationChange Location
     | ChangeLocation Route
     -- New Series
+    | AddNewSeries
     | NewSeriesNameChange String
     | NewSeriesDescChange String
     | NewSeriesStatChange String
@@ -19,15 +20,20 @@ type Msg
     | NewSeriesDuraChange String
     | NewSeriesDaysChange String
     | NewSeriesTimeChange String
-    | SubmitNewSeries
+    | SubmitSeries Int
     | AddedSeries (WebData Series)
+    -- EditSeries
+    | EditSeries Series
     -- New Episode
+    | AddNewEpisode Int
     | NewEpisodeDescChange String
     | NewEpisodeFiniChange String
     | NewEpisodeNumbChange String
     | NewEpisodeSeasChange String
-    | SubmitNewEpisode Series
+    | SubmitEpisode Series Int
     | AddedEpisode (WebData Series)
+    -- Edit Episode
+    | EditEpisode Series Episode
     -- Delete
     | DeleteSeries Int
     | DeleteEpisode Series Int

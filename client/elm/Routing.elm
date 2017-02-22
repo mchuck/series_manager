@@ -3,9 +3,7 @@ module Routing exposing (..)
 import Navigation exposing (Location)
 import UrlParser exposing (..)
 
-
 import Models exposing (Route(..))
-
 
 matchers : Parser (Route -> a) a
 matchers =
@@ -18,6 +16,8 @@ matchers =
         , map NewEpisodeRoute (s "series" </> int </> s "newEpisode")
         , map DeleteEpisodeRoute (s "series" </> int </> s "episode" </> int </> s "delete")
         , map DeleteSeriesRoute (s "series" </> int </> s "delete")
+        , map EditEpisodeRoute (s "series" </> int </> s "episode" </> int </> s "edit")
+        , map EditSeriesRoute (s "series" </> int </> s "edit")
         ]
 
 parseLocation : Location -> Route

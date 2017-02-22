@@ -8,7 +8,14 @@ import Navigation exposing (Location)
 import String exposing (toInt)
 
 import Messages exposing (Msg(..))
-import Models exposing (Model, Series, Route(..), singleSeriesEncoder, seriesDecoder, singleSeriesDecoder, initialModel, intFromDay)
+import Models exposing (Model, Series, Route(..)
+                       , singleSeriesEncoder
+                       , seriesDecoder
+                       , singleSeriesDecoder
+                       , initialModel
+                       , intFromDay
+                       , newSeriesModel
+                       , newEpisodeModel)
 import Views exposing (..)
 import Routing exposing (parseLocation)
 
@@ -110,8 +117,15 @@ update msg model =
                 in
                     ({ model | newSeries = updatedSeries }, Cmd.none)
 
-            SubmitNewSeries ->
-                (model, submitSeries model.newSeries)
+            SubmitSeries seriesId->
+                let
+                    series = { newS | id = seriesId }
+                in
+                    case seriesId of
+                        -1 ->
+                            (model, submitSeries series)
+                        _ ->
+                            (model, updateSeries series)
 
             AddedSeries series ->
                 update GetSeries { model | route = SeriesCollectionRoute }
@@ -161,9 +175,13 @@ update msg model =
                 in
                     ({model | newEpisode = updatedEpisode}, Cmd.none)
 
-            SubmitNewEpisode series ->
+            SubmitEpisode series episodeId ->
                 let
-                    newSeries = { series | episodes = newE :: series.episodes }
+                    newEpisode = { newE | id = episodeId }
+                    newEpisodes =
+                        series.episodes
+                            |> List.filter (\e -> e.id /= episodeId)
+                    newSeries = { series | episodes = newEpisode :: newEpisodes }
                 in
                     (model, updateSeries newSeries)
 
@@ -184,6 +202,26 @@ update msg model =
 
             OnDelete (Err _) ->
                ({ model | route = SeriesCollectionRoute }, Cmd.none )
+
+
+            EditSeries series ->
+               let
+                   seriesId = series.id
+               in
+                   ({ model | newSeries = series, route = (EditSeriesRoute seriesId)}, Cmd.none)
+
+            EditEpisode series episode ->
+                let
+                    seriesId = series.id
+                    episodeId = episode.id
+                in
+                    ({model | newEpisode = episode, route = (EditEpisodeRoute seriesId episodeId)}, Cmd.none)
+
+            AddNewSeries ->
+                ({ model | newSeries = newSeriesModel, route = NewSeriesRoute}, Cmd.none)
+
+            AddNewEpisode seriesId ->
+                ({ model | newEpisode = newEpisodeModel, route = (NewEpisodeRoute seriesId)}, Cmd.none)
 
 -- SUBSCRIPTIONS
 

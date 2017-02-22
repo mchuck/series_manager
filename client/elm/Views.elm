@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (attribute, class, id, href, src, alt)
 import WebData exposing (WebData(..))
 
-import Models exposing (Model, SeriesCollection, Series, Route(..), getSingleSeries, getEpisode)
+import Models exposing (Model, SeriesCollection, Series, Route(..), getSingleSeries, getEpisode, newSeriesModel, newEpisodeModel)
 import Messages exposing (Msg(..))
 
 import Views.MenuView
@@ -44,7 +44,7 @@ page model =
                         notFoundView
 
         NewSeriesRoute ->
-            Views.NewSeriesView.view model
+            Views.NewSeriesView.view model -1
 
         EpisodeRoute seriesId episodeId ->
             let
@@ -70,7 +70,7 @@ page model =
             in
                 case singleSeries of
                     Just s ->
-                        Views.NewEpisodeView.view model s
+                        Views.NewEpisodeView.view model s -1
                     Nothing ->
                         notFoundView
                             
@@ -90,6 +90,20 @@ page model =
 
         DeleteSeriesRoute seriesId ->
             Views.AreYouSure.view (DeleteSeries seriesId) (ChangeLocation (SeriesRoute seriesId))
+
+        EditEpisodeRoute seriesId episodeId ->
+             let
+                singleSeries = 
+                    getSingleSeries model.series seriesId
+            in
+                case singleSeries of
+                    Just s ->
+                        Views.NewEpisodeView.view model s episodeId
+                    Nothing ->
+                        notFoundView
+                            
+        EditSeriesRoute seriesId ->
+            Views.NewSeriesView.view model seriesId
                        
 notFoundView : Html Msg
 notFoundView =

@@ -2,10 +2,11 @@ module Views.SeriesListView exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, id, href, src, alt)
+import Html.Events exposing (onClick)
 import WebData exposing (WebData(..))
 
 import Models exposing (Model, SeriesCollection, Series)
-import Messages exposing (Msg)
+import Messages exposing (Msg(..))
 import Views.Components exposing (Breadcrumb, breadcrumbsComponent)
 
 view : (WebData SeriesCollection) -> Html Msg
@@ -19,7 +20,7 @@ view model =
                ])
         , div [ class "container" ]
             [ div [ class "row" ]
-                [ a [ class "btn btn-info col-xs-12", href "#newSeries" ]
+                [ span [ class "btn btn-info col-xs-12", onClick AddNewSeries ]
                       [ text "New series" ]      
                 ]
             , baseView model       

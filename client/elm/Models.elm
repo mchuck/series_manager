@@ -17,18 +17,27 @@ type Route
     | NewEpisodeRoute SeriesId
     | DeleteEpisodeRoute SeriesId EpisodeId
     | DeleteSeriesRoute SeriesId
+    | EditEpisodeRoute SeriesId EpisodeId
+    | EditSeriesRoute SeriesId
       
 type alias Model =
     { series : WebData (SeriesCollection)
     , newSeries : Series
     , newEpisode : Episode
     , route : Route
-    } 
+    }
 
-initialModel : Route -> Model
-initialModel route =
-    { series = WebData.Loading
-    , newSeries =
+newEpisodeModel : Episode
+newEpisodeModel =
+        { id = -1
+        , description = ""
+        , isFinished = False
+        , season = 1
+        , number = 1
+        }
+    
+newSeriesModel : Series
+newSeriesModel =
           { id = -1
           , name = ""
           , description = ""
@@ -42,13 +51,12 @@ initialModel route =
           , time = ""
           , episodes = []
           }
-    , newEpisode =
-        { id = -1
-        , description = ""
-        , isFinished = False
-        , season = -1
-        , number = -1
-        }                   
+
+initialModel : Route -> Model
+initialModel route =
+    { series = WebData.Loading
+    , newSeries = newSeriesModel
+    , newEpisode = newEpisodeModel             
     , route = route
     }
         
