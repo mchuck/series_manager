@@ -20,9 +20,15 @@ view model =
                ])
         , div [ class "container" ]
             [ div [ class "row" ]
-                [ span [ class "btn btn-info col-xs-12", onClick AddNewSeries ]
-                      [ text "New series" ]      
-                ]
+                  [ div [ class "col-xs-6" ]
+                        [ span [ class "btn btn-info col-xs-12", onClick AddNewSeries ]
+                              [ text "New series" ]
+                        ]
+                  , div [ class "col-xs-6" ]
+                        [ span [ class "btn btn-info col-xs-12", onClick GetSeries ]
+                              [ text "Refresh" ]
+                        ]
+                  ]
             , baseView model       
             ]
         ]
@@ -31,7 +37,7 @@ baseView : (WebData SeriesCollection) -> Html Msg
 baseView series =
     case series of
         Success s ->
-            div [ class "top-margin-20" ]
+            div [ class "top-margin-20 col-xs-12" ]
                ( seriesCollectionView s )
         Loading ->
             div []

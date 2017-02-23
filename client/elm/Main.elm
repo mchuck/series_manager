@@ -1,6 +1,5 @@
 module Main exposing (..)
 
-import Html exposing (Html)
 import Navigation
 
 

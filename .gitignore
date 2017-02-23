@@ -397,3 +397,5 @@ server/any
 client/node_modules/
 client/elm-stuff
 client/elm.js
+dist
+doc

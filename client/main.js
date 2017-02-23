@@ -1,26 +1,28 @@
 'use strict';
+
+const DEBUG = false;
+
 const electron = require('electron');
 const spawn = require('child_process').spawn;
-const chokidar = require('chokidar');
-
 const app = electron.app; // this is our app
 const BrowserWindow = electron.BrowserWindow; // This is a Module that creates windows
 
-
-let mainWindow; // saves a global reference to mainWindow so it doesn't get garbage collected
+let mainWindow;
 let server;
 
 app.on('ready', init); // called when electron has initialized
 
-// tell chokidar to watch these files for changes
-// reload the window if there is one
-chokidar.watch(['ports.js', 'index.html', 'elm.js', '**/*.css']).on('change', () => {
-  if (mainWindow) {
-      mainWindow.reload();
-  }
-});
-
-// This will create our app window, no surprise there
+if(DEBUG){
+    // tell chokidar to watch these files for changes
+    // reload the window if there is one
+    const chokidar = require('chokidar');
+    
+    chokidar.watch(['ports.js', 'index.html', 'elm.js', '**/*.css']).on('change', () => {
+	if (mainWindow) {
+	    mainWindow.reload();
+	}
+    });
+}
 
 function init(){
     spawnServer();
@@ -28,8 +30,12 @@ function init(){
 }
 
 function spawnServer() {
-    server = spawn('mono', ['../build/server.exe']);
-
+    if(DEBUG){
+	server = spawn('mono', ['../build/server.exe']);
+    }else{
+	server = spawn('mono', ['./server/server.exe']);
+    }
+    
     server.on('exit', (data) => {
 	console.log(data);
     });
@@ -45,22 +51,21 @@ function spawnServer() {
 }
 
 function createWindow () {
-  mainWindow = new BrowserWindow({
-      width: 800, 
-      height: 600,
-      minHeight : 400,
-      minWidth : 600
-  });
+    mainWindow = new BrowserWindow({
+	width: 800, 
+	height: 600,
+	minHeight : 400,
+	minWidth : 600
+    });
 
-  // display the index.html file
     mainWindow.loadURL(`file://${ __dirname }/index.html`);
   
-  // open dev tools by default so we can see any console errors
-  //mainWindow.webContents.openDevTools();
+    // open dev tools by default so we can see any console errors
+    //mainWindow.webContents.openDevTools();
 
-  mainWindow.on('closed', function () {
-      mainWindow = null;
-  });
+    mainWindow.on('closed', function () {
+	mainWindow = null;
+    });
 }
 
 /* Mac Specific things */

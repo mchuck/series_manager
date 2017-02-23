@@ -75,6 +75,9 @@ isNothing m =
             False
 
 formGroupComponent : FormGroup -> Html Msg
+
+
+                     
 formGroupComponent fg =
     div [ class "form-group" ]
         [ case fg.control of

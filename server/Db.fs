@@ -32,18 +32,16 @@ type Series = {
 module Db =
     
     [<Literal>]
-    let private connectionString = 
-        "Data Source=" + 
-        __SOURCE_DIRECTORY__ + @"/series.db;" + 
-        "Version=3;foreign keys=true"
-
+    let private connectionString =    
+        "Data Source=./series.db;Version=3;foreign keys=true"    
+    
     type sql = SqlDataProvider<
                 Common.DatabaseProviderTypes.SQLITE, 
                 SQLiteLibrary = Common.SQLiteLibrary.MonoDataSQLite,
                 ConnectionString = connectionString, 
                 CaseSensitivityChange = Common.CaseSensitivityChange.ORIGINAL>
 
-    let private ctx = sql.GetDataContext()
+    let private ctx = sql.GetDataContext(connectionString, "./db/")
 
     let private seriesDb = ctx.Main.Series
     let private episodesDb = ctx.Main.Episodes
